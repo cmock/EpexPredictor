@@ -164,11 +164,14 @@ class RegionPriceManager:
         return self
 
 
-    def _normalize_start_ts(self, start_ts: datetime | None, tz: ZoneInfo) -> datetime:
+    def _normalize_start_ts(self, start_ts: datetime | None, tz: ZoneInfo, hourly: bool) -> datetime:
         """Normalize start_ts to the target timezone."""
         if start_ts is None:
             now = datetime.now(tz=tz)
-            return now.replace(second=0, microsecond=0, minute=(now.minute // 15 * 15), hour=now.hour)
+            if hourly:
+                return now.replace(second=0, microsecond=0, minute=0, hour=now.hour)
+            else:
+                return now.replace(second=0, microsecond=0, minute=(now.minute // 15 * 15), hour=now.hour)
         if start_ts.tzinfo is None:
             return start_ts.replace(tzinfo=tz)
         return start_ts.astimezone(tz)
@@ -184,7 +187,7 @@ class RegionPriceManager:
             tz = ZoneInfo(timezone)
         except Exception:
             raise HTTPException(status_code=400, detail=f"Invalid timezone {timezone}")
-        start_ts = self._normalize_start_ts(start_ts, tz)
+        start_ts = self._normalize_start_ts(start_ts, tz, hourly)
         end_ts = start_ts + timedelta(hours=hours) if hours >= 0 else datetime(2999, 1, 1, tzinfo=tz)
 
         prediction = self.cachedeval if evaluation else self.cachedprices
