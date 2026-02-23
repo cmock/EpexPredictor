@@ -188,21 +188,5 @@ refresh_interval: 10
 
 # evcc integration
 
-[evcc](https://evcc.io/) is an open-source EV charging controller that can optimize charging based on electricity prices. This EPEX predictor integrates seamlessly with evcc to enable smart charging based on predicted electricity prices.
-
-### Configuration
-
-Add the following to your evcc configuration file (`evcc.yaml`):
-
-```yaml
-# Make sure you change the parameters surcharge and taxPercent according to your electricity plan
-tariffs:
-  currency: EUR
-  grid:
-    type: custom
-    forecast:
-      source: http
-      uri: https://epexpredictor.batzill.com/prices?region=DE&surcharge=13.15&taxPercent=19&unit=EUR_PER_KWH&timezone=UTC
-      jq: '[.prices[] | { start: .startsAt, "end": (.startsAt | strptime("%Y-%m-%dT%H:%M:%SZ") | mktime + 900 | strftime("%Y-%m-%dT%H:%M:%SZ")), "value": .total}] | tostring'
-```
-
+[evcc](https://evcc.io/) is an open-source EV charging controller that can optimize charging based on electricity prices.
+It now has native support for EpexPredictor, see [docs](https://docs.evcc.io/docs/tariffs#epex-predictor-predicted-epex-spot-prices)
